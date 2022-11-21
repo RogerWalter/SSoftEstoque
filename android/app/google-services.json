@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "4763739742",
+    "firebase_url": "https://ssoft-estoque-default-rtdb.firebaseio.com",
+    "project_id": "ssoft-estoque",
+    "storage_bucket": "ssoft-estoque.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:4763739742:android:da6efc14cc2965509af6cf",
+        "android_client_info": {
+          "package_name": "com.ssoft.ssoft_estoque"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "4763739742-be7c887ls8merni0iddnnr0pb7rr9e2j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkF5seFM-qSwkMIzsB-64VF1VbsBk3Mpw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "4763739742-be7c887ls8merni0iddnnr0pb7rr9e2j.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "4763739742-mr5s5138ql3v59q806tga9m7dtce46oa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ssoft.ssoftEstoque"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
