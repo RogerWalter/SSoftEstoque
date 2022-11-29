@@ -119,6 +119,11 @@ class _DialogoBaixaState extends State<DialogoBaixa> {
                               keyboardType: TextInputType.number,
                               textInputAction: TextInputAction.next,
                               maxLength: 9,
+                              enableInteractiveSelection: false,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                               cursorColor: cores.cor_app_bar,
                               style: TextStyle(
                                   color: cores.cor_app_bar,
@@ -269,6 +274,11 @@ class _DialogoBaixaState extends State<DialogoBaixa> {
                               keyboardType: TextInputType.number,
                               textInputAction: TextInputAction.done,
                               maxLength: 6,
+                              enableInteractiveSelection: false,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                               cursorColor: cores.cor_app_bar,
                               style: TextStyle(
                                   color: cores.cor_app_bar,

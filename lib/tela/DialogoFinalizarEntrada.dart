@@ -21,6 +21,7 @@ import '../firebase_options.dart';
 import '../model/Item.dart';
 import '../util/Controller.dart';
 import '../util/Planilha.dart';
+import '../util/SemConexao.dart';
 import '../util/Util.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -325,26 +326,32 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
       return;
     }
     else{
-      controller_mobx.entrada_dialogo_visible = false;
-      mostrar_progress();
-      await gerar_imagem_assinatura(context);
-      await gerar_pdf();
-      await salvar_entrada_firebase();
-      await controller_mobx.preenche_lista_estoque_atual();
-      controller_mobx.remover_todos_entrada();
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Main()
-          )
-      );
+      int conexao = await cores.verificar_conexao();
+      if(conexao == 0){//sem conexão
+        mostrar_sem_conexao();
+      }
+      else{
+        controller_mobx.entrada_dialogo_visible = false;
+        mostrar_progress();
+        await gerar_imagem_assinatura(context);
+        await gerar_pdf();
+        await salvar_entrada_firebase();
+        await controller_mobx.preenche_lista_estoque_atual();
+        controller_mobx.remover_todos_entrada();
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Main()
+            )
+        );
+      }
     }
   }
   Future<void> gerar_imagem_assinatura(BuildContext context) async {
     final Uint8List? data =
-    await _controller_signature.toPngBytes(height: 1000, width: 1000);
+    await _controller_signature.toPngBytes();
     if (data == null) {
       return;
     }
@@ -469,7 +476,7 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
               padding: pw.EdgeInsets.only(top: 8),
               child: pw.Container(
                   height: 50,
-                  child: pw.Image(pw.MemoryImage(_assinatura_gerada!), fit: pw.BoxFit.cover)
+                  child: pw.Image(pw.MemoryImage(_assinatura_gerada!), fit: pw.BoxFit.scaleDown)
               ),
             ),
           ),
@@ -633,5 +640,21 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
               child:  Center(child: WidgetProgress(),)
           ),
         ));
+  }
+
+  mostrar_sem_conexao(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_){
+          return WillPopScope(
+              child: Dialog(
+                child: Wrap(
+                    children:  [Center(child: SemConexao(),)]
+                ),
+              ),
+              onWillPop: () async => false
+          );
+        });
   }
 }

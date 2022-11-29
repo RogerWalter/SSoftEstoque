@@ -1,12 +1,14 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
 
 import '../model/Item.dart';
 import '../util/Controller.dart';
+import '../util/SemConexao.dart';
 import '../util/Util.dart';
 import '../util/WidgetProgress.dart';
 class DialogoNovoItem extends StatefulWidget {
@@ -90,6 +92,11 @@ class _DialogoNovoItemState extends State<DialogoNovoItem> {
                                     keyboardType: TextInputType.number,
                                     textInputAction: TextInputAction.next,
                                     maxLength: 9,
+                                    enableInteractiveSelection: false,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
                                     cursorColor: cores.cor_app_bar,
                                     style: TextStyle(
                                         color: cores.cor_app_bar,
@@ -366,7 +373,7 @@ class _DialogoNovoItemState extends State<DialogoNovoItem> {
       }
     );
   }
-  salvar_item(){
+  salvar_item() async{
     if(_controller_codigo.text.isEmpty || _controller_codigo.text.length < 9
         || _controller_nome.text.isEmpty || _controller_unidade.text.length < 2
         || _controller_unidade.text.isEmpty){
@@ -378,7 +385,13 @@ class _DialogoNovoItemState extends State<DialogoNovoItem> {
       ).show(context);
     }
     else{
-      mostrar_dialogo_confirmar_novo_item();
+      int conexao = await cores.verificar_conexao();
+      if(conexao == 0){//sem conexão
+        mostrar_sem_conexao();
+      }
+      else{
+        mostrar_dialogo_confirmar_novo_item();
+      }
     }
   }
 
@@ -517,5 +530,21 @@ class _DialogoNovoItemState extends State<DialogoNovoItem> {
               child:  Center(child: WidgetProgress(),)
           ),
         ));
+  }
+
+  mostrar_sem_conexao(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_){
+          return WillPopScope(
+              child: Dialog(
+                child: Wrap(
+                    children:  [Center(child: SemConexao(),)]
+                ),
+              ),
+              onWillPop: () async => false
+          );
+        });
   }
 }

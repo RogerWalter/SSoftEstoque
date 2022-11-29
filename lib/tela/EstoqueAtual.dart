@@ -27,8 +27,6 @@ class _EstoqueAtualState extends State<EstoqueAtual> {
   int _conexao = 1;
   List<Item> lista_filtrada = [];
 
-  //TESTAR CAMERA QUE SCANEIA SERIAL DO EQUIPAMENTO
-
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
