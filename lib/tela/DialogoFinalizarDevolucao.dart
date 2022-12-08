@@ -6,37 +6,34 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:signature/signature.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:ssoft_estoque/model/DadosBaixa.dart';
-import 'package:ssoft_estoque/model/RegistroBaixa.dart';
 
 import '../firebase_options.dart';
+import '../model/DadosBaixa.dart';
 import '../model/Item.dart';
+import '../model/RegistroBaixa.dart';
 import '../util/Controller.dart';
 import '../util/Planilha.dart';
 import '../util/SemConexao.dart';
 import '../util/Util.dart';
 import '../util/WidgetProgress.dart';
 import 'Main.dart';
-class DialogoFinalizarBaixa extends StatefulWidget {
-  const DialogoFinalizarBaixa({Key? key}) : super(key: key);
+class DialogoFinalizarDevolucao extends StatefulWidget {
+  const DialogoFinalizarDevolucao({Key? key}) : super(key: key);
 
   @override
-  State<DialogoFinalizarBaixa> createState() => _DialogoFinalizarBaixaState();
+  State<DialogoFinalizarDevolucao> createState() => _DialogoFinalizarDevolucaoState();
 }
 
-class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
-
+class _DialogoFinalizarDevolucaoState extends State<DialogoFinalizarDevolucao> {
   TextEditingController _controller_nome = TextEditingController();
   FocusNode _foco_nome = FocusNode();
 
@@ -72,6 +69,12 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _foco_nome.requestFocus();
+  }
+  @override
   Widget build(BuildContext context) {
     _controller_foto.text = "Não";
     controller_mobx.baixa_altera_cor_campo_imagem(false);
@@ -81,12 +84,6 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
       planilha_salvar = planilha.spreadsheetId_jve;
     if(controller_mobx.estoque_atual == "UVA")
       planilha_salvar = planilha.spreadsheetId_uva;
-    if(controller_mobx.parametro_origem){
-      _controller_nome.text = controller_mobx.separacao_tecnico;
-    }else{
-      _foco_nome.requestFocus();
-    }
-    controller_mobx.baixa_dialogo_visible = true;
     return Observer(
         builder: (_){
           return SingleChildScrollView(
@@ -97,7 +94,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                   maintainSize: true,
                   maintainAnimation: true,
                   maintainState: true,
-                  visible: controller_mobx.baixa_dialogo_visible,
+                  visible: controller_mobx.devolucao_dialogo_visible,
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
@@ -162,7 +159,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                                         decoration: InputDecoration(
                                           floatingLabelBehavior: FloatingLabelBehavior.always,
                                           counterText: "",
-                                          labelText: "Técnico",
+                                          labelText: "Operador",
                                           labelStyle: TextStyle(color: cores.laranja_teccel, fontWeight: FontWeight.normal),
                                           fillColor: Colors.transparent,
                                           hoverColor: cores.cor_app_bar,
@@ -181,87 +178,6 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                                       ),
                                     ),
                                   ),
-                                ],
-                              )
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(top: 8, bottom: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                      child: Observer(
-                                        builder: (_){
-                                          return Container(
-                                            height: 50,
-                                            child: TextField(
-                                              enabled: false,
-                                              controller: _controller_foto,
-                                              focusNode: _foco_foto,
-                                              keyboardType: TextInputType.number,
-                                              textInputAction: TextInputAction.next,
-                                              maxLength: 9,
-                                              cursorColor: cores.cor_app_bar,
-                                              style: TextStyle(
-                                                  color: controller_mobx.baixa_cor_texto_campo_imagem,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold
-                                              ),
-                                              decoration: InputDecoration(
-                                                floatingLabelBehavior: FloatingLabelBehavior.always,
-                                                counterText: "",
-                                                labelText: "Foto Registrada?",
-                                                labelStyle: TextStyle(color: cores.laranja_teccel, fontWeight: FontWeight.normal),
-                                                fillColor: Colors.transparent,
-                                                hoverColor: cores.cor_app_bar,
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(width: 2, color: cores.cor_app_bar),
-                                                  borderRadius: BorderRadius.circular(15),
-                                                ),
-                                                disabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(width: 2, color: cores.cor_app_bar),
-                                                  borderRadius: BorderRadius.circular(15),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(width: 2, color: cores.laranja_teccel),
-                                                  borderRadius: BorderRadius.circular(15),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      )
-                                  ),
-                                  Padding(padding: EdgeInsets.only(left: 16)),
-                                  Observer(
-                                      builder: (_){
-                                        return Container(
-                                            height: 50,
-                                            width: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
-                                              borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            ),
-                                            child: Material(
-                                              borderRadius: BorderRadius.all(Radius.circular(15)),
-                                              child: InkWell(
-                                                  splashColor: cores.laranja_teccel.withOpacity(0.25),
-                                                  hoverColor: Colors.white,
-                                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                  onTap: (){
-                                                    //Abrimos a câmera para escanear
-                                                    mostrar_dialogo_fonte_imagem();
-                                                  },
-                                                  child: Align(
-                                                      alignment: Alignment.center,
-                                                      child: Icon(Icons.camera_alt_rounded, color: cores.cor_app_bar)
-                                                  )
-                                              ),
-                                            )
-                                        );
-                                      }
-                                  )
                                 ],
                               )
                           ),
@@ -383,7 +299,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                                               borderRadius: BorderRadius.all(Radius.circular(12)),
                                               onTap: (){
                                                 //validamos e salvamos os dados
-                                                salvar_nova_baixa();
+                                                salvar_nova_devolucao();
                                               },
                                               child: Align(
                                                 alignment: Alignment.center,
@@ -414,164 +330,8 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
         }
     );
   }
-  mostrar_dialogo_fonte_imagem(){
-    showAnimatedDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return CustomDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(25.0))),
-            child: Wrap(
-              children: <Widget>[
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(8,8,8,4),
-                          child: Text(
-                            "Inserir Imagem",
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: cores.cor_app_bar
-                            ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(8,4,8,4),
-                          child: Text(
-                            "Como deseja inserir a imagem no relatório?",
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: cores.cor_app_bar
-                            ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                            padding: EdgeInsets.fromLTRB(8,4,8,8),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                      child: TextButton(
-                                        onPressed: (){
-                                          selecionar_foto();
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            Icon(Icons.image_search_rounded, color: cores.laranja_teccel,),
-                                            Text(
-                                                "Galeria",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: cores.laranja_teccel,
-                                                ),
-                                                textAlign: TextAlign.center
-                                            ),
-                                          ],
-                                        )
-                                      )
-                                  ),
-                                  Expanded(
-                                      child: TextButton(
-                                        onPressed: (){
-                                          tirar_foto();
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            Icon(Icons.camera_alt_rounded, color: cores.laranja_teccel,),
-                                            Text(
-                                                "Câmera",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: cores.laranja_teccel,
-                                                ),
-                                                textAlign: TextAlign.center
-                                            ),
-                                          ],
-                                        )
-                                      )
-                                  )
-                                ]
-                            )
-                        ),
-                      )
-                    ]
-                )
-              ],
-            )
-        );
-      },
-      animationType: DialogTransitionType.fadeScale,
-      curve: Curves.easeOutQuint,
-      duration: Duration(milliseconds: 500),
-    );
-  }
-  tirar_foto() async{
-    imagem_relatorio = null;
-    parametro_foto = false;
-    controller_mobx.baixa_texto_campo_imagem = "Não";
-    _controller_foto.text = controller_mobx.baixa_texto_campo_imagem;
-    controller_mobx.baixa_altera_cor_campo_imagem(false);
-    XFile? pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1000,
-      maxHeight: 1000,
-      imageQuality: 25
-    );
-    if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
-      imagem_relatorio = imageFile;
-      parametro_foto = true;
-      controller_mobx.baixa_texto_campo_imagem = "Sim";
-      _controller_foto.text = controller_mobx.baixa_texto_campo_imagem;
-      controller_mobx.baixa_altera_cor_campo_imagem(true);
-    }
-  }
-  selecionar_foto() async{
-    imagem_relatorio = null;
-    parametro_foto = false;
-    controller_mobx.baixa_texto_campo_imagem = "Não";
-    _controller_foto.text = controller_mobx.baixa_texto_campo_imagem;
-    controller_mobx.baixa_altera_cor_campo_imagem(false);
-    XFile? pickedFile = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1000,
-        maxHeight: 1000,
-        imageQuality: 25
-    );
-    if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
-      imagem_relatorio = imageFile;
-      parametro_foto = true;
-      controller_mobx.baixa_texto_campo_imagem = "Sim";
-      _controller_foto.text = controller_mobx.baixa_texto_campo_imagem;
-      controller_mobx.baixa_altera_cor_campo_imagem(true);
-    }
-  }
-
-  salvar_nova_baixa()async{
-    if(_controller_signature.isEmpty || _controller_nome.text.isEmpty || imagem_relatorio == null || _controller_foto.text == "Não"){
+  salvar_nova_devolucao()async{
+    if(_controller_signature.isEmpty || _controller_nome.text.isEmpty){
       Flushbar(
         backgroundColor: cores.cor_accent,
         message: 'Existem dados obrigatórios não preenchidos. Verifique e tente novamente.',
@@ -585,16 +345,13 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
         mostrar_sem_conexao();
       }
       else{
-        controller_mobx.baixa_dialogo_visible = false;
+        controller_mobx.devolucao_dialogo_visible = false;
         mostrar_progress();
         await gerar_imagem_assinatura(context);
         await gerar_pdf();
         await salvar_baixa_firebase();
-        if(controller_mobx.parametro_origem){
-          await finalizar_separacao();
-        }
         await controller_mobx.preenche_lista_estoque_atual();
-        controller_mobx.remover_todos_baixa();
+        controller_mobx.remover_todos_devolucao();
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
@@ -625,24 +382,24 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
     const tableHeaders = ['CÓDIGO', 'DESCRIÇÃO', 'QTD', 'U.M.'];
 
     //ajusta a lista da baixa inserindo os seriais se houver
-    List<Item> lista_itens_baixa_pdf = [];
-    for(Item item in controller_mobx.lista_itens_baixa){
+    List<Item> lista_itens_devolucao_pdf = [];
+    for(Item item in controller_mobx.lista_itens_devolucao){
       if(item.controla_serial == 1){
-        lista_itens_baixa_pdf.add(item);
+        lista_itens_devolucao_pdf.add(item);
         int indice = -1;
-        indice = controller_mobx.lista_seriais_itens_baixa.indexWhere((element) => element.codigo == item.codigo);
+        indice = controller_mobx.devolucao_lista_seriais_itens.indexWhere((element) => element.codigo == item.codigo);
         for(int i = 0; i < item.qtd; i++){
           Item serial = Item();
           serial.codigo = "";
-          serial.nome = controller_mobx.lista_seriais_itens_baixa[indice].seriais_item[i];
+          serial.nome = controller_mobx.devolucao_lista_seriais_itens[indice].seriais_item[i];
           serial.qtd = 1;
           serial.unidade = item.unidade;
           serial.controla_serial = 0;
-          lista_itens_baixa_pdf.add(serial);
+          lista_itens_devolucao_pdf.add(serial);
         }
       }
       else{
-        lista_itens_baixa_pdf.add(item);
+        lista_itens_devolucao_pdf.add(item);
       }
     }
 
@@ -666,7 +423,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                   padding: pw.EdgeInsets.only(top: 16, bottom: 8),
                   child: pw.Container(
                     child: pw.FittedBox(
-                      child: pw.Text("Relatório de Entrega de Materiais", style: pw.TextStyle(font: font, fontSize: 28)),
+                      child: pw.Text("Relatório de Devolução de Equipamentos", style: pw.TextStyle(font: font, fontSize: 28)),
                     ),
                   ),
                 ),
@@ -677,7 +434,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                   padding: pw.EdgeInsets.only(top: 8, bottom: 8),
                   child: pw.SizedBox(
                     child: pw.FittedBox(
-                      child: pw.Text("Filial: " + controller_mobx.estoque_atual + "\nTécnico: " + _controller_nome.text + "\nData: " + data_relatorio,
+                      child: pw.Text("Filial: " + controller_mobx.estoque_atual + "\nOperador: " + _controller_nome.text + "\nData: " + data_relatorio,
                           style: pw.TextStyle(font: font, fontSize: 18),
                           textAlign: pw.TextAlign.center
                       ),
@@ -700,12 +457,12 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                       headers: tableHeaders,
                       headerAlignment: pw.Alignment.centerLeft,
                       data: List<List<dynamic>>.generate(
-                        lista_itens_baixa_pdf.length,
-                            (index) => <dynamic>[ //lista_itens_baixa_pdf
-                              lista_itens_baixa_pdf[index].codigo,
-                              lista_itens_baixa_pdf[index].nome,
-                              lista_itens_baixa_pdf[index].qtd.toString(),
-                              lista_itens_baixa_pdf[index].unidade,
+                        lista_itens_devolucao_pdf.length,
+                          (index) => <dynamic>[ //lista_itens_baixa_pdf
+                            lista_itens_devolucao_pdf[index].codigo,
+                            lista_itens_devolucao_pdf[index].nome,
+                            lista_itens_devolucao_pdf[index].qtd.toString(),
+                            lista_itens_devolucao_pdf[index].unidade,
                         ],
                       ),
                       cellStyle: pw.TextStyle(
@@ -741,7 +498,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                   padding: pw.EdgeInsets.only(top: 8, bottom: 8),
                   child: pw.Container(
                     child: pw.FittedBox(
-                      child: pw.Text("Declaro que recebi os materiais listados neste documento.",
+                      child: pw.Text("Declaro que os equipamentos listados neste documento foram entregues ao estoque da Unifique.",
                           style: pw.TextStyle(font: font, fontSize: 14),
                           textAlign: pw.TextAlign.center
                       ),
@@ -750,10 +507,10 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                 ),
               ),
               pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Expanded(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Expanded(
                       child: pw.Column(
                           mainAxisAlignment: pw.MainAxisAlignment.center,
                           crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -791,44 +548,53 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
                             ),
                           ]
                       ),
-                  ),
-                  pw.Expanded(
-                    child: pw.Column(
-                        mainAxisAlignment: pw.MainAxisAlignment.center,
-                        crossAxisAlignment: pw.CrossAxisAlignment.center,
-                        children: [
-                          pw.Align(
-                            alignment: pw.Alignment.topCenter,
-                            child: pw.Padding(
-                              padding: pw.EdgeInsets.only(top: 8),
-                              child: pw.Container(
-                                  height: 100,
-                                  child: pw.Image(pw.MemoryImage(imagem_relatorio.readAsBytesSync()), fit: pw.BoxFit.scaleDown)
-                              ),
-                            ),
-                          ),
-                          pw.Align(
-                            alignment: pw.Alignment.topCenter,
-                            child: pw.Padding(
-                              padding: pw.EdgeInsets.only(top: 2, bottom: 16),
-                              child: pw.Container(
-                                child: pw.Text("Imagem do Técnico",
-                                    style: pw.TextStyle(font: font, fontSize: 14),
-                                    textAlign: pw.TextAlign.center
+                    ),
+                    pw.Expanded(
+                      child: pw.Column(
+                          mainAxisAlignment: pw.MainAxisAlignment.center,
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Align(
+                              alignment: pw.Alignment.topCenter,
+                              child: pw.Padding(
+                                padding: pw.EdgeInsets.only(top: 8),
+                                child: pw.Container(
+                                    height: 100,
+                                    child: pw.Container()
                                 ),
                               ),
                             ),
-                          ),
-                        ]
-                    )
-                  )
-                ]
+                            pw.Align(
+                              alignment: pw.Alignment.topCenter,
+                              child: pw.Padding(
+                                padding: pw.EdgeInsets.only(top: 2, bottom: 16),
+                                child: pw.Container(
+                                  width: 150,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(
+                                        top: pw.BorderSide(
+                                            color: PdfColor.fromHex("#000000"),
+                                            width: 1.0
+                                        )
+                                    ),
+                                  ),
+                                  child: pw.Text("Estoque Unifique",
+                                      style: pw.TextStyle(font: font, fontSize: 14),
+                                      textAlign: pw.TextAlign.center
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]
+                      ),
+                    ),
+                  ]
               )
             ]
         )
     );
     String data_formatada = DateFormat('yyyyMMdd-kkmmss').format(now);
-    String nome_pdf = "ENT" + data_formatada + "-" + _controller_nome.text.toUpperCase();
+    String nome_pdf = "DEV" + data_formatada + "-" + _controller_nome.text.toUpperCase();
     await Printing.sharePdf(bytes: await pdf.save(), filename: nome_pdf+'.pdf');
     //pdf_gerado = File.fromRawPath(await pdf.save());
 
@@ -842,13 +608,13 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
     DateTime now = DateTime.now();
     String data_formatada = DateFormat('dd/MM/yyyy').format(now);
     String data_nome_arquivo = DateFormat('yyyyMMdd-kkmmss').format(now);
-    String nome_pdf = "SAI" + data_nome_arquivo + "-" + _controller_nome.text.toUpperCase();
+    String nome_pdf = "DEV" + data_nome_arquivo + "-" + _controller_nome.text.toUpperCase();
     //recuperamos a ultima chave usada no registro de baixas
-    int chave = controller_mobx.ultima_chave_baixa;
+    int chave = controller_mobx.ultima_chave_devolucao;
     int cont = 0;
     List<List<dynamic>> lista_linhas_itens = [];
     //registramos todos os itens da lista de baixa
-    for(Item item in controller_mobx.lista_itens_baixa){
+    for(Item item in controller_mobx.lista_itens_devolucao){
       RegistroBaixa registro_saida = RegistroBaixa();
       registro_saida.identificacao = nome_pdf;
       registro_saida.tecnico = _controller_nome.text.toUpperCase();
@@ -862,36 +628,26 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
       lista_linhas_itens.add(item_linha);
       cont++;
     }
-    //insere os seriais na planilha de seriais baixados
+    //insere os seriais na planilha de seriais devolvidos
     List<List<dynamic>> lista_seriais_itens = [];
-    if(controller_mobx.lista_seriais_itens_baixa.length > 0){
-      for(Item item in controller_mobx.lista_itens_baixa){
+    if(controller_mobx.lista_itens_devolucao.length > 0){
+      for(Item item in controller_mobx.lista_itens_devolucao){
         if(item.controla_serial == 1){
           int indice = -1;
-          indice = controller_mobx.lista_seriais_itens_baixa.indexWhere((element) => element.codigo == item.codigo);
+          indice = controller_mobx.devolucao_lista_seriais_itens.indexWhere((element) => element.codigo == item.codigo);
           for(int i = 0; i < item.qtd; i++){
-            String serial = controller_mobx.lista_seriais_itens_baixa[indice].seriais_item[i];
+            String serial = controller_mobx.devolucao_lista_seriais_itens[indice].seriais_item[i];
             List<dynamic> item_linha = [data_formatada, _controller_nome.text, item.codigo, item.nome, serial, "1", item.unidade];
             lista_seriais_itens.add(item_linha);
           }
         }
       }
     }
-    //atualizamos a chave de saida
-    int nova_chave = chave + controller_mobx.lista_itens_baixa.length;
-    DatabaseReference ref = FirebaseDatabase.instance.ref(controller_mobx.estoque_atual).child("chave_saida").child("001");
+    //atualizamos a chave de devolucao
+    int nova_chave = chave + controller_mobx.lista_itens_devolucao.length;
+    DatabaseReference ref = FirebaseDatabase.instance.ref(controller_mobx.estoque_atual).child("chave_devolucao").child("001");
     await ref.set(nova_chave);
-    controller_mobx.alterar_ultima_chave_baixa(nova_chave);
-    //atualizamos as quantidades do estoque
-    for(Item item in controller_mobx.lista_itens_baixa){
-      controller_mobx.baixa_buscar_item_lista_estoque(item.codigo);
-      int qtd_atual_item = controller_mobx.baixa_item_lista_estoque.qtd;
-      int qtd_saindo_item = item.qtd;
-      int nova_qtd_item = qtd_atual_item - qtd_saindo_item;
-      DatabaseReference ref_estoque_qtd = FirebaseDatabase.instance.ref(controller_mobx.estoque_atual).child("estoque").child(item.codigo).child("qtd");
-      await ref_estoque_qtd.set(nova_qtd_item);
-      await planilha_estoque_baixa(item.codigo, nova_qtd_item);
-    }
+    controller_mobx.alterar_ultima_chave_devolucao(nova_chave);
     //salvar pdf no storage
     String link_download = await fazer_upload_pdf(nome_pdf);
     //copiar link do pdf e salvar na listagem de baixas
@@ -905,7 +661,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
 
   Future<String> fazer_upload_pdf(String nome_arquivo) async{
     final storageRef = FirebaseStorage.instance.ref();
-    final saidaRef = storageRef.child(controller_mobx.estoque_atual).child("saida/" + nome_arquivo);
+    final saidaRef = storageRef.child(controller_mobx.estoque_atual).child("devolucao/" + nome_arquivo);
     String link_download_pdf = "";
     try {
       await saidaRef.putFile(pdf_gerado);
@@ -919,35 +675,16 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
   salvar_planilha(List<List<dynamic>> linhas_itens_baixa, List<List<dynamic>> linhas_seriais_baixa, DadosBaixa item_add) async{
     final gsheets = GSheets(planilha.credentials);
     final ss = await gsheets.spreadsheet(planilha_salvar);
-    var sheet_itens = ss.worksheetByTitle('Itens Baixas');
-    var sheet_seriais = ss.worksheetByTitle('Seriais Baixados');
-    var sheet_baixas = ss.worksheetByTitle('Baixas');
+    var sheet_itens = ss.worksheetByTitle('Itens Devolução');
+    var sheet_seriais = ss.worksheetByTitle('Devolução Seriais');
+    var sheet_devolucoes = ss.worksheetByTitle('Devoluções');
     await sheet_itens!.values.appendRows(linhas_itens_baixa);
     if(linhas_seriais_baixa.length > 0)
       await sheet_seriais!.values.appendRows(linhas_seriais_baixa);
-    var ultima_linha = await sheet_baixas!.values.lastRow();
-    var indice = await sheet_baixas!.values.rowIndexOf(ultima_linha![1], inColumn: 2);
+    var ultima_linha = await sheet_devolucoes!.values.lastRow();
+    var indice = await sheet_devolucoes!.values.rowIndexOf(ultima_linha![1], inColumn: 2);
     String chave = indice.toString().padLeft(6, '0');
-    await sheet_baixas!.values.appendRow([chave, item_add.identificacao, item_add.data, item_add.tecnico, item_add.link]);
-  }
-
-  planilha_estoque_baixa(String codigo, int nova_qtd) async{
-    final gsheets = GSheets(planilha.credentials);
-    final ss = await gsheets.spreadsheet(planilha_salvar);
-    var sheet = ss.worksheetByTitle('Estoque Atual');
-    var indice = await sheet!.values.rowIndexOf(codigo, inColumn: 1);
-    await sheet.values.insertValue(nova_qtd, column: 3, row: indice);
-  }
-
-  finalizar_separacao() async{
-    String identificacao = controller_mobx.separacao_identificacao;
-    DatabaseReference ref_separacao = FirebaseDatabase.instance.ref(controller_mobx.estoque_atual).child("separacao").child(identificacao);
-    await ref_separacao.remove();
-    await controller_mobx.preenche_lista_separacoes();
-    controller_mobx.altera_tecnico_separacao("");
-    controller_mobx.altera_identificacao_separacao("");
-    controller_mobx.alterar_parametro_origem(false);
-    controller_mobx.alterar_arametro_houve_alteracao(false);
+    await sheet_devolucoes!.values.appendRow([chave, item_add.identificacao, item_add.data, item_add.tecnico, item_add.link]);
   }
 
   mostrar_progress(){
@@ -960,7 +697,7 @@ class _DialogoFinalizarBaixaState extends State<DialogoFinalizarBaixa> {
               child: Dialog(
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
-                child: new Container(
+                child: Container(
                     alignment: FractionalOffset.center,
                     height: 80.0,
                     padding: const EdgeInsets.all(20.0),

@@ -13,7 +13,9 @@ class Planilha{
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/estoque-teccel-sbs%40estoque-teccel.iam.gserviceaccount.com"
 }
 ''';
-  var _spreadsheetId = '14-IfgW9oAKdbeopsPffrLGYeuloDOQIIy_DAqFHpl_U';
+  var _spreadsheetId_sbs = '14-IfgW9oAKdbeopsPffrLGYeuloDOQIIy_DAqFHpl_U';
+  var _spreadsheetId_jve = '1opDJYDRe9ryG5xY40T6jGrkCOOlRwfKIRfuQsmWrrUc';
+  var _spreadsheetId_uva = '10aGGdGSgPDnVc0DkCIVpIqI9vGitNU0hQmcbX-AErcA';
 
   Planilha();
 
@@ -23,9 +25,21 @@ class Planilha{
     _credentials = value;
   }
 
-  get spreadsheetId => _spreadsheetId;
+  get spreadsheetId_uva => _spreadsheetId_uva;
 
-  set spreadsheetId(value) {
-    _spreadsheetId = value;
+  set spreadsheetId_uva(value) {
+    _spreadsheetId_uva = value;
+  }
+
+  get spreadsheetId_jve => _spreadsheetId_jve;
+
+  set spreadsheetId_jve(value) {
+    _spreadsheetId_jve = value;
+  }
+
+  get spreadsheetId_sbs => _spreadsheetId_sbs;
+
+  set spreadsheetId_sbs(value) {
+    _spreadsheetId_sbs = value;
   }
 }

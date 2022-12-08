@@ -1,5 +1,4 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
@@ -10,17 +9,18 @@ import 'package:provider/provider.dart';
 import '../util/Controller.dart';
 import '../util/SemDados.dart';
 import '../util/Util.dart';
-class ColetarSeriais extends StatefulWidget {
+
+class ColetarSeriaisDevolucao extends StatefulWidget {
   int _indice_coletar = 0;
   int _qtd_informada = 0;
 
-  ColetarSeriais(this._indice_coletar, this._qtd_informada);
+  ColetarSeriaisDevolucao(this._indice_coletar, this._qtd_informada);
 
   @override
-  State<ColetarSeriais> createState() => _ColetarSeriaisState();
+  State<ColetarSeriaisDevolucao> createState() => _ColetarSeriaisDevolucaoState();
 }
 
-class _ColetarSeriaisState extends State<ColetarSeriais> {
+class _ColetarSeriaisDevolucaoState extends State<ColetarSeriaisDevolucao> {
   TextEditingController _controller_codigo = TextEditingController();
   FocusNode _foco_codigo = FocusNode();
 
@@ -52,11 +52,12 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
     // TODO: implement initState
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
-    controller_mobx.baixa_buscar_item_lista_estoque(controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].codigo);
-    _controller_codigo.text = controller_mobx.baixa_item_lista_estoque.codigo;
-    _controller_nome.text = controller_mobx.baixa_item_lista_estoque.nome;
+    controller_mobx.devolucao_buscar_item_lista_estoque(controller_mobx.devolucao_lista_seriais_itens[widget._indice_coletar].codigo);
+    _controller_codigo.text = controller_mobx.devolucao_item_lista_estoque.codigo;
+    _controller_nome.text = controller_mobx.devolucao_item_lista_estoque.nome;
     _controller_qtd.text = widget._qtd_informada.toString();
     altura_lista = MediaQuery.of(context).size.height/4;
     return Column(
@@ -78,19 +79,19 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  child: Align(
-                      alignment: Alignment.center,
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                        child: Text(
-                          "Coleta de Serial",
-                        ),
-                      )
-                  )
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: DefaultTextStyle(
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          child: Text(
+                            "Coleta de Serial (Devolução)",
+                          ),
+                        )
+                    )
                 ),
                 Padding(
                     padding: EdgeInsets.only(top: 8, bottom: 8),
@@ -108,10 +109,10 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                       return Container(
                                           height: 25,
                                           child: Switch(
-                                            value: controller_mobx.serial_parametro_camera,
+                                            value: controller_mobx.devolucao_serial_parametro_camera,
                                             activeColor: cores.laranja_teccel,
                                             onChanged: (bool value){
-                                              controller_mobx.serial_parametro_camera = value;
+                                              controller_mobx.devolucao_serial_parametro_camera = value;
                                             },
                                           )
                                       );
@@ -151,9 +152,6 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                         onTap: (){
                                           //Abrimos a câmera para escanear
                                           scan_codigo();
-                                          /*for(int i = 0; i < 3; i++){
-                                            controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].adicionar_serial("ZTEGC00123" + i.toString());
-                                          }*/
                                         },
                                         child: Align(
                                             alignment: Alignment.center,
@@ -334,7 +332,7 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                           height: altura_lista,
                           child: Column(
                             children: <Widget>[
-                              if(controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].seriais_item.length > 0)
+                              if(controller_mobx.devolucao_lista_seriais_itens[widget._indice_coletar].seriais_item.length > 0)
                                 Expanded(
                                     child: ScrollConfiguration(
                                         behavior: ScrollBehavior(),
@@ -342,7 +340,7 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                             axisDirection: AxisDirection.down,
                                             color: cores.laranja_teccel.withOpacity(0.20),
                                             child: ListView.builder(
-                                              itemCount: controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].seriais_item.length,
+                                              itemCount: controller_mobx.devolucao_lista_seriais_itens[widget._indice_coletar].seriais_item.length,
                                               shrinkWrap: true,
                                               scrollDirection: Axis.vertical,
                                               itemBuilder: (_, index){
@@ -363,14 +361,14 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                                           ),
                                                           tileColor: Colors.white,
                                                           leading:  CircleAvatar(
-                                                              backgroundColor: Colors.black,
-                                                              child: Image.asset("images/barcode.png", height: 24,),
+                                                            backgroundColor: Colors.black,
+                                                            child: Image.asset("images/barcode.png", height: 24,),
                                                           ),
                                                           title: Padding(
-                                                            padding: EdgeInsets.fromLTRB(0, 4, 0, 2),
-                                                            child: Center(
+                                                              padding: EdgeInsets.fromLTRB(0, 4, 0, 2),
+                                                              child: Center(
                                                                 child: Text(
-                                                                  controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].seriais_item[index],
+                                                                  controller_mobx.devolucao_lista_seriais_itens[widget._indice_coletar].seriais_item[index],
                                                                   textAlign: TextAlign.center,
                                                                   style: TextStyle(
                                                                       color: Colors.black,
@@ -378,7 +376,7 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                                                       fontWeight: FontWeight.bold
                                                                   ),
                                                                 ),
-                                                            )
+                                                              )
                                                           ),
                                                           trailing: IconButton(
                                                             splashColor: cores.laranja_teccel.withOpacity(0.25),
@@ -429,7 +427,7 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                     hoverColor: Colors.white,
                                     borderRadius: BorderRadius.all(Radius.circular(12)),
                                     onTap: (){
-                                      controller_mobx.serial_parametro_coleta_finalizada = false;
+                                      controller_mobx.devolucao_serial_parametro_coleta_finalizada = false;
                                       Navigator.of(context).pop();
                                     },
                                     child: Align(
@@ -563,7 +561,7 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                   Expanded(
                                       child: TextButton(
                                         onPressed: (){
-                                          controller_mobx.remover_serial_item_baixa(widget._indice_coletar, indice);
+                                          controller_mobx.devolucao_remover_serial(widget._indice_coletar, indice);
                                           Navigator.of(context).pop();
                                         },
                                         child: Text(
@@ -606,14 +604,13 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
     }
   }
   salvar_item(String barcodeScanRes){
-    controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].adicionar_serial(barcodeScanRes);
-    if(controller_mobx.serial_parametro_camera){
+    controller_mobx.devolucao_lista_seriais_itens[widget._indice_coletar].adicionar_serial(barcodeScanRes);
+    if(controller_mobx.devolucao_serial_parametro_camera){
       scan_codigo();
     }
   }
-
   finalizar_coleta_item_atual(){
-    if(controller_mobx.lista_seriais_itens_baixa[widget._indice_coletar].seriais_item.length != widget._qtd_informada){
+    if(controller_mobx.devolucao_lista_seriais_itens[widget._indice_coletar].seriais_item.length != widget._qtd_informada){
       Flushbar(
         backgroundColor: cores.cor_accent,
         message: 'Quantidade de seriais informada é divergente da quantidade de seriais esperada. Verifique se a quantidades escaneada e a quantide de equipamento que está saindo é a mesma e tente novamente',
@@ -693,7 +690,7 @@ class _ColetarSeriaisState extends State<ColetarSeriais> {
                                   Expanded(
                                       child: TextButton(
                                         onPressed: (){
-                                          controller_mobx.serial_parametro_coleta_finalizada = true;
+                                          controller_mobx.devolucao_serial_parametro_coleta_finalizada = true;
                                           Navigator.of(context).pop();
                                           Navigator.of(context).pop();
                                         },

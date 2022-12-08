@@ -62,13 +62,13 @@ class Item{
     _unidade = value;
   }
 
-  recuperar_itens_estoque() async{
+  recuperar_itens_estoque(String filial) async{
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     List<Item> _listaItens = [];
     final ref = FirebaseDatabase.instance.ref();
-    final snapshot = await ref.child("estoque").get();
+    final snapshot = await ref.child(filial).child("estoque").get();
     if (snapshot.exists) {
       final json = snapshot.value as Map<dynamic, dynamic>;
       for(DataSnapshot ds in snapshot.children)
@@ -80,5 +80,85 @@ class Item{
       }
     }
     return _listaItens;
+  }
+
+  recuperar_itens_devolucao(String filial) async{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    List<Item> _listaItens = [];
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child(filial).child("item_devolucao").get();
+    if (snapshot.exists) {
+      final json = snapshot.value as Map<dynamic, dynamic>;
+      for(DataSnapshot ds in snapshot.children)
+      {
+        Item _itemLista = Item();
+        final json = ds.value as Map<dynamic, dynamic>;
+        _itemLista = Item.fromJson(json);
+        _listaItens.add(_itemLista);
+      }
+    }
+    return _listaItens;
+  }
+
+  Future<int> recupera_ultima_chave_baixa(String filial) async{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    int ultima_chave = 0;
+    List<int> chaves = <int>[];
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child(filial).child("chave_saida").get();
+    if (snapshot.exists) {
+      for(DataSnapshot ds in snapshot.children){
+        int chave_ds = int.parse(ds.value.toString());
+        ultima_chave = chave_ds;
+        chaves.add(chave_ds);
+      }
+    } else {
+      print('No data available.');
+    }
+    return ultima_chave;
+  }
+
+  Future<int> recupera_ultima_chave_entrada(String filial) async{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    int ultima_chave = 0;
+    List<int> chaves = <int>[];
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child(filial).child("chave_entrada").get();
+    if (snapshot.exists) {
+      for(DataSnapshot ds in snapshot.children){
+        int chave_ds = int.parse(ds.value.toString());
+        ultima_chave = chave_ds;
+        chaves.add(chave_ds);
+      }
+    } else {
+      print('No data available.');
+    }
+    return ultima_chave;
+  }
+
+  Future<int> recupera_ultima_chave_devolucao(String filial) async{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    int ultima_chave = 0;
+    List<int> chaves = <int>[];
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child(filial).child("chave_devolucao").get();
+    if (snapshot.exists) {
+      for(DataSnapshot ds in snapshot.children){
+        int chave_ds = int.parse(ds.value.toString());
+        ultima_chave = chave_ds;
+        chaves.add(chave_ds);
+      }
+    } else {
+      print('No data available.');
+    }
+    return ultima_chave;
   }
 }

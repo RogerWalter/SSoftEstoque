@@ -1,23 +1,22 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:ssoft_estoque/model/Item.dart';
-import 'package:ssoft_estoque/util/Util.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:another_flushbar/flushbar.dart';
-import 'package:another_flushbar/flushbar_helper.dart';
-import 'package:another_flushbar/flushbar_route.dart';
 
+import '../model/Item.dart';
 import '../util/Controller.dart';
-class DialogoEntrada extends StatefulWidget {
-  const DialogoEntrada({Key? key}) : super(key: key);
+import '../util/ItemController.dart';
+import '../util/Util.dart';
+class DialogoDevolucao extends StatefulWidget {
+  const DialogoDevolucao({Key? key}) : super(key: key);
 
   @override
-  State<DialogoEntrada> createState() => _DialogoEntradaState();
+  State<DialogoDevolucao> createState() => _DialogoDevolucaoState();
 }
 
-class _DialogoEntradaState extends State<DialogoEntrada> {
+class _DialogoDevolucaoState extends State<DialogoDevolucao> {
   TextEditingController _controller_codigo = TextEditingController();
   FocusNode _foco_codigo = FocusNode();
 
@@ -46,7 +45,6 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
     super.initState();
     _foco_codigo.requestFocus();
   }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -82,10 +80,10 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
                                 return Container(
                                     height: 25,
                                     child: Switch(
-                                      value: controller_mobx.parametro_camera,
+                                      value: controller_mobx.devolucao_parametro_camera,
                                       activeColor: cores.laranja_teccel,
                                       onChanged: (bool value){
-                                        controller_mobx.parametro_camera = value;
+                                        controller_mobx.devolucao_parametro_camera = value;
                                       },
                                     )
                                 );
@@ -150,9 +148,9 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
                                 ),
                                 onChanged: (content){
                                   if(content.length == 9){
-                                    controller_mobx.buscar_item_lista_estoque(content);
-                                    _controller_nome.text = controller_mobx.entrada_nome_item;
-                                    _controller_unidade.text = controller_mobx.entrada_unidade_item;
+                                    controller_mobx.devolucao_buscar_item_lista_estoque(content);
+                                    _controller_nome.text = controller_mobx.devolucao_item_lista_estoque.nome;
+                                    _controller_unidade.text = controller_mobx.devolucao_item_lista_estoque.unidade;
                                     if(_controller_unidade.text != ""){
                                       _foco_qtd.requestFocus();
                                     }
@@ -165,9 +163,9 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
                                 },
                                 onSubmitted: (content){
                                   if(content.length == 9){
-                                    controller_mobx.buscar_item_lista_estoque(content);
-                                    _controller_nome.text = controller_mobx.entrada_nome_item;
-                                    _controller_unidade.text = controller_mobx.entrada_unidade_item;
+                                    controller_mobx.devolucao_buscar_item_lista_estoque(content);
+                                    _controller_nome.text = controller_mobx.devolucao_item_lista_estoque.nome;
+                                    _controller_unidade.text = controller_mobx.devolucao_item_lista_estoque.unidade;
                                     if(_controller_unidade.text != ""){
                                       _foco_qtd.requestFocus();
                                     }
@@ -304,7 +302,7 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
                                   ),
                                 ),
                                 onSubmitted: (content){
-                                  salvar_item();
+                                  salvar_item(context);
                                 },
                               ),
                             ),
@@ -416,7 +414,7 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
                                       borderRadius: BorderRadius.all(Radius.circular(12)),
                                       onTap: (){
                                         //validamos e salvamos os dados
-                                        salvar_item();
+                                        salvar_item(context);
                                       },
                                       child: Align(
                                         alignment: Alignment.center,
@@ -441,7 +439,7 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
             ),
           )
         ],
-      )
+      ),
     );
   }
   Future<void> scan_codigo() async {
@@ -455,21 +453,22 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
     if (!mounted) return;
     if(barcodeScanRes == "-1")
       return;
-    controller_mobx.entrada_retorno_scan = barcodeScanRes;
-    _controller_codigo.text = controller_mobx.entrada_retorno_scan;
+    controller_mobx.devolucao_retorno_scan = await barcodeScanRes;
+    _controller_codigo.text = await controller_mobx.devolucao_retorno_scan;
     if(_controller_codigo.text.length == 9){
-      controller_mobx.buscar_item_lista_estoque(_controller_codigo.text);
-      _controller_nome.text = controller_mobx.entrada_nome_item;
-      _controller_unidade.text = controller_mobx.entrada_unidade_item;
+      await controller_mobx.devolucao_buscar_item_lista_estoque(_controller_codigo.text);
+      _controller_nome.text = controller_mobx.devolucao_item_lista_estoque.nome;
+      _controller_unidade.text = controller_mobx.devolucao_item_lista_estoque.unidade;
       if(_controller_unidade.text != ""){
         _foco_qtd.requestFocus();
+        _controller_qtd.text = "";
       }
     }
   }
-  salvar_item(){
+  salvar_item(BuildContext thiscontext){
     if(_controller_codigo.text.isEmpty || _controller_codigo.text.length < 9
-      || _controller_qtd.text.isEmpty || int.parse(_controller_qtd.text) <= 0
-      || _controller_unidade.text.isEmpty){
+        || _controller_qtd.text.isEmpty || int.parse(_controller_qtd.text) <= 0
+        || _controller_unidade.text.isEmpty){
       //preenchimento incorreto
       Flushbar(
         backgroundColor: cores.cor_accent,
@@ -483,13 +482,16 @@ class _DialogoEntradaState extends State<DialogoEntrada> {
       item_add.codigo = _controller_codigo.text;
       item_add.qtd = int.parse(_controller_qtd.text);
       item_add.unidade = _controller_unidade.text;
-      item_add.controla_serial = controller_mobx.entrada_controla_serial_item;
-      controller_mobx.adiciona_item_entrada(item_add);
-      if(controller_mobx.parametro_camera){
-        _controller_codigo.text = "";
-        _controller_nome.text = "";
-        _controller_unidade.text = "";
-        _controller_qtd.text = "";
+      item_add.controla_serial = controller_mobx.devolucao_item_lista_estoque.controla_serial;
+      if(item_add.controla_serial == 1){
+        //adicionamos na lista de seriais para coletar o serial depois
+        ItemController serial_add = ItemController();
+        serial_add.codigo = item_add.codigo;
+        serial_add.qtd_informada = item_add.qtd;
+        controller_mobx.devolucao_lista_seriais_itens.add(serial_add);
+      }
+      controller_mobx.adiciona_item_devolucao(item_add);
+      if(controller_mobx.devolucao_parametro_camera){
         scan_codigo();
       }
       else{

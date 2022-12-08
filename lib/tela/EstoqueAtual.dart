@@ -537,7 +537,7 @@ class _EstoqueAtualState extends State<EstoqueAtual> {
                   padding: pw.EdgeInsets.only(top: 8, bottom: 8),
                   child: pw.SizedBox(
                     child: pw.FittedBox(
-                      child: pw.Text("Data: " + data_relatorio,
+                      child: pw.Text("Filial: " + controller_mobx.estoque_atual + "\nData: " + data_relatorio,
                           style: pw.TextStyle(font: font, fontSize: 18),
                           textAlign: pw.TextAlign.center
                       ),

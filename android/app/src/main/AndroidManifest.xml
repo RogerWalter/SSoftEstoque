@@ -2,7 +2,7 @@
     package="com.ssoft.ssoft_estoque">
    <application
         android:requestLegacyExternalStorage="true"
-        android:label="Estoque Teccel"
+        android:label="Teccel Estoque"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

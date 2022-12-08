@@ -42,6 +42,7 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
   Controller controller_mobx = Controller();
   Uint8List? _assinatura_gerada;
   var pdf_gerado;
+  var planilha_salvar;
 
   final SignatureController _controller_signature = SignatureController(
     penStrokeWidth: 2,
@@ -72,246 +73,254 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
 
   @override
   Widget build(BuildContext context) {
+    if(controller_mobx.estoque_atual == "SBS")
+      planilha_salvar = planilha.spreadsheetId_sbs;
+    if(controller_mobx.estoque_atual == "JVE")
+      planilha_salvar = planilha.spreadsheetId_jve;
+    if(controller_mobx.estoque_atual == "UVA")
+      planilha_salvar = planilha.spreadsheetId_uva;
     return Observer(
       builder: (_){
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Visibility(
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              visible: controller_mobx.entrada_dialogo_visible,
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                    image: DecorationImage(
-                        image: AssetImage('images/wallpaper.png'),
-                        //colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.75), BlendMode.modulate,),
-                        fit: BoxFit.cover
-                    )
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        child: Icon(Icons.check, color: cores.cor_app_bar, size: 50,),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 16, bottom: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Expanded(
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "Informe seu nome e assine abaixo para efetivar a entrada",
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Visibility(
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                visible: controller_mobx.entrada_dialogo_visible,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                      image: DecorationImage(
+                          image: AssetImage('images/wallpaper.png'),
+                          //colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.75), BlendMode.modulate,),
+                          fit: BoxFit.cover
+                      )
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          child: Icon(Icons.check, color: cores.cor_app_bar, size: 50,),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 16, bottom: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Informe seu nome e assine abaixo para efetivar a entrada",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14
+                                        ),
+                                      ),
+                                    )
+                                )
+                              ],
+                            )
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 8, bottom: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: Container(
+                                    height: 50,
+                                    child: TextField(
+                                      controller: _controller_nome,
+                                      focusNode: _foco_nome,
+                                      keyboardType: TextInputType.name,
+                                      textCapitalization: TextCapitalization.characters,
+                                      textInputAction: TextInputAction.next,
+                                      cursorColor: cores.cor_app_bar,
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14
+                                          color: cores.cor_app_bar,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold
                                       ),
-                                    ),
-                                  )
-                              )
-                            ],
-                          )
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8, bottom: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                  height: 50,
-                                  child: TextField(
-                                    controller: _controller_nome,
-                                    focusNode: _foco_nome,
-                                    keyboardType: TextInputType.name,
-                                    textCapitalization: TextCapitalization.characters,
-                                    textInputAction: TextInputAction.next,
-                                    cursorColor: cores.cor_app_bar,
-                                    style: TextStyle(
-                                        color: cores.cor_app_bar,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                    decoration: InputDecoration(
-                                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                                      counterText: "",
-                                      labelText: "Operador",
-                                      labelStyle: TextStyle(color: cores.laranja_teccel, fontWeight: FontWeight.normal),
-                                      fillColor: Colors.transparent,
-                                      hoverColor: cores.cor_app_bar,
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(width: 2, color: cores.cor_app_bar),
-                                        borderRadius: BorderRadius.circular(15),
+                                      decoration: InputDecoration(
+                                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                                        counterText: "",
+                                        labelText: "Operador",
+                                        labelStyle: TextStyle(color: cores.laranja_teccel, fontWeight: FontWeight.normal),
+                                        fillColor: Colors.transparent,
+                                        hoverColor: cores.cor_app_bar,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(width: 2, color: cores.cor_app_bar),
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(width: 2, color: cores.laranja_teccel),
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
                                       ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(width: 2, color: cores.laranja_teccel),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    onSubmitted: (content){
+                                      onSubmitted: (content){
 
-                                    },
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 8, bottom: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Observer(
-                                  builder: (_){
-                                    return Expanded(
-                                      child: Stack(
-                                        children: <Widget>[
-                                          InputDecorator(
-                                              decoration: InputDecoration(
-                                                floatingLabelBehavior: FloatingLabelBehavior.always,
-                                                counterText: "",
-                                                labelText: "Assinatura",
-                                                labelStyle: TextStyle(color: cores.laranja_teccel, fontWeight: FontWeight.normal),
-                                                fillColor: Colors.transparent,
-                                                hoverColor: cores.cor_app_bar,
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(width: 2, color: cores.cor_app_bar),
-                                                  borderRadius: BorderRadius.circular(15),
+                              ],
+                            )
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 8, bottom: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Observer(
+                                    builder: (_){
+                                      return Expanded(
+                                        child: Stack(
+                                          children: <Widget>[
+                                            InputDecorator(
+                                                decoration: InputDecoration(
+                                                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                  counterText: "",
+                                                  labelText: "Assinatura",
+                                                  labelStyle: TextStyle(color: cores.laranja_teccel, fontWeight: FontWeight.normal),
+                                                  fillColor: Colors.transparent,
+                                                  hoverColor: cores.cor_app_bar,
+                                                  enabledBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(width: 2, color: cores.cor_app_bar),
+                                                    borderRadius: BorderRadius.circular(15),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(width: 2, color: cores.laranja_teccel),
+                                                    borderRadius: BorderRadius.circular(15),
+                                                  ),
                                                 ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(width: 2, color: cores.laranja_teccel),
-                                                  borderRadius: BorderRadius.circular(15),
-                                                ),
-                                              ),
-                                              child: ClipRRect(
-                                                child: Signature(
-                                                  key: const Key('signature'),
-                                                  controller: _controller_signature,
-                                                  height: 200,
-                                                  backgroundColor: Colors.transparent,
-                                                ),
-                                              )
-                                          ),
-                                          Align(
-                                              alignment: Alignment.topRight,
-                                              child: Padding(
-                                                padding: EdgeInsets.only(right: 4),
-                                                child: IconButton(
-                                                  icon: Icon(Icons.undo_rounded, color: cores.laranja_teccel,),
-                                                  onPressed: (){
-                                                    _controller_signature.undo();
-                                                  },
-                                                ),
-                                              )
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                              )
-                            ],
-                          )
-                      ),
-                      Padding(
-                          padding: EdgeInsets.zero,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.transparent,
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      border: Border.all(
-                                          color: cores.laranja_teccel,
-                                          width: 2
-                                      ),
-                                    ),
-                                    child: Material(
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      child: InkWell(
-                                          splashColor: cores.laranja_teccel.withOpacity(0.25),
-                                          hoverColor: Colors.white,
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          onTap: (){
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Cancelar",
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14
-                                              ),
+                                                child: ClipRRect(
+                                                  child: Signature(
+                                                    key: const Key('signature'),
+                                                    controller: _controller_signature,
+                                                    height: 200,
+                                                    backgroundColor: Colors.transparent,
+                                                  ),
+                                                )
                                             ),
-                                          )
-                                      ),
-                                    )
-                                ),
-                              ),
-                              Padding(padding: EdgeInsets.only(left: 16)),
-                              Expanded(
-                                child: Container(
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.transparent,
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      border: Border.all(
-                                          color: cores.laranja_teccel,
-                                          width: 2
-                                      ),
-                                    ),
-                                    child: Material(
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      child: InkWell(
-                                          splashColor: cores.laranja_teccel.withOpacity(0.25),
-                                          hoverColor: Colors.white,
-                                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                                          onTap: (){
-                                            //validamos e salvamos os dados
-                                            salvar_nova_entrada();
-                                          },
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              "Salvar",
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14
-                                              ),
+                                            Align(
+                                                alignment: Alignment.topRight,
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(right: 4),
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.undo_rounded, color: cores.laranja_teccel,),
+                                                    onPressed: (){
+                                                      _controller_signature.undo();
+                                                    },
+                                                  ),
+                                                )
                                             ),
-                                          )
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                )
+                              ],
+                            )
+                        ),
+                        Padding(
+                            padding: EdgeInsets.zero,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: Container(
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            color: cores.laranja_teccel,
+                                            width: 2
+                                        ),
                                       ),
-                                    )
+                                      child: Material(
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        child: InkWell(
+                                            splashColor: cores.laranja_teccel.withOpacity(0.25),
+                                            hoverColor: Colors.white,
+                                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                                            onTap: (){
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Cancelar",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14
+                                                ),
+                                              ),
+                                            )
+                                        ),
+                                      )
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                      ),
-                    ],
+                                Padding(padding: EdgeInsets.only(left: 16)),
+                                Expanded(
+                                  child: Container(
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            color: cores.laranja_teccel,
+                                            width: 2
+                                        ),
+                                      ),
+                                      child: Material(
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        child: InkWell(
+                                            splashColor: cores.laranja_teccel.withOpacity(0.25),
+                                            hoverColor: Colors.white,
+                                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                                            onTap: (){
+                                              //validamos e salvamos os dados
+                                              salvar_nova_entrada();
+                                            },
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Salvar",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14
+                                                ),
+                                              ),
+                                            )
+                                        ),
+                                      )
+                                  ),
+                                ),
+                              ],
+                            )
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          )
         );
       }
     );
@@ -398,7 +407,7 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
               padding: pw.EdgeInsets.only(top: 8, bottom: 8),
               child: pw.SizedBox(
                 child: pw.FittedBox(
-                  child: pw.Text("Operador: " + _controller_nome.text + "\nData: " + data_relatorio,
+                  child: pw.Text("Filial: " + controller_mobx.estoque_atual + "\nOperador: " + _controller_nome.text + "\nData: " + data_relatorio,
                       style: pw.TextStyle(font: font, fontSize: 18),
                       textAlign: pw.TextAlign.center
                   ),
@@ -521,8 +530,9 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
     String data_nome_arquivo = DateFormat('yyyyMMdd-kkmmss').format(now);
     String nome_pdf = "ENT" + data_nome_arquivo + "-" + _controller_nome.text.toUpperCase();
     //recuperamos a ultima chave usada no registro de entradas
-    int chave = await recupera_ultima_chave_entrada();
+    int chave = controller_mobx.ultima_chave_entrada;
     int cont = 0;
+    List<List<dynamic>> lista_linhas_itens = [];
     //registramos todos os itens da lista de entrada
     for(Item item in controller_mobx.lista_itens_entrada){
       RegistroEntrada registro_entrada = RegistroEntrada();
@@ -534,23 +544,22 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
       registro_entrada.qtd = item.qtd;
       registro_entrada.unidade = item.unidade;
       String chave_salvar = (chave+1+cont).toString().padLeft(6, '0');
-      await planilha_aba_item_baixa(registro_entrada, chave_salvar);
-      //final json = registro_entrada.toJson();
-      //DatabaseReference ref = FirebaseDatabase.instance.ref("entrada").child(chave_salvar);
-      //await ref.set(json);
+      List<dynamic> item_linha = [chave_salvar, registro_entrada.data, registro_entrada.identificacao, registro_entrada.operador, registro_entrada.codigo, registro_entrada.nome, registro_entrada.qtd, registro_entrada.unidade];
+      lista_linhas_itens.add(item_linha);
       cont++;
     }
     //atualizamos a chave de entrada
     int nova_chave = chave + controller_mobx.lista_itens_entrada.length;
-    DatabaseReference ref = FirebaseDatabase.instance.ref("chave_entrada").child("001");
+    DatabaseReference ref = FirebaseDatabase.instance.ref(controller_mobx.estoque_atual).child("chave_entrada").child("001");
     await ref.set(nova_chave);
+    controller_mobx.alterar_ultima_chave_entrada(nova_chave);
     //atualizamos as quantidades do estoque
     for(Item item in controller_mobx.lista_itens_entrada){
       controller_mobx.buscar_item_lista_estoque(item.codigo);
       int qtd_atual_item = controller_mobx.entrada_item_lista_estoque.qtd;
       int qtd_entrando_item = item.qtd;
       int nova_qtd_item = qtd_atual_item + qtd_entrando_item;
-      DatabaseReference ref_estoque_qtd = FirebaseDatabase.instance.ref("estoque").child(item.codigo).child("qtd");
+      DatabaseReference ref_estoque_qtd = FirebaseDatabase.instance.ref(controller_mobx.estoque_atual).child("estoque").child(item.codigo).child("qtd");
       await ref_estoque_qtd.set(nova_qtd_item);
       await planilha_estoque_entrada(item.codigo, nova_qtd_item);
     }
@@ -562,35 +571,15 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
     dados_entrada.data = data_formatada;
     dados_entrada.operador = _controller_nome.text.toUpperCase();
     dados_entrada.link = link_download;
-    await planilha_aba_entrada(dados_entrada);
+    await salvar_planilha(lista_linhas_itens, dados_entrada);
     //DatabaseReference ref_dados_entrada = FirebaseDatabase.instance.ref("dados_entrada").child(nome_pdf);
     //final json = dados_entrada.toJson();
     //await ref_dados_entrada.set(json);
   }
 
-  Future<int> recupera_ultima_chave_entrada() async{
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    int ultima_chave = 0;
-    List<int> chaves = <int>[];
-    final ref = FirebaseDatabase.instance.ref();
-    final snapshot = await ref.child("chave_entrada").get();
-    if (snapshot.exists) {
-      for(DataSnapshot ds in snapshot.children){
-        int chave_ds = int.parse(ds.value.toString());
-        ultima_chave = chave_ds;
-        chaves.add(chave_ds);
-      }
-    } else {
-      print('No data available.');
-    }
-    return ultima_chave;
-  }
-
   Future<String> fazer_upload_pdf(String nome_arquivo) async{
     final storageRef = FirebaseStorage.instance.ref();
-    final entradaRef = storageRef.child("entrada/" + nome_arquivo);
+    final entradaRef = storageRef.child(controller_mobx.estoque_atual).child("entrada/" + nome_arquivo);
     String link_download_pdf = "";
     try {
       await entradaRef.putFile(pdf_gerado);
@@ -601,26 +590,21 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
     return link_download_pdf;
   }
 
-  planilha_aba_item_baixa(RegistroEntrada item_add, String chave_salvar) async{
+  salvar_planilha(List<List<dynamic>> linhas_itens_baixa, DadosEntrada item_add) async{
     final gsheets = GSheets(planilha.credentials);
-    final ss = await gsheets.spreadsheet(planilha.spreadsheetId);
-    var sheet = ss.worksheetByTitle('Itens Entradas');
-    await sheet!.values.appendRow([chave_salvar, item_add.data, item_add.identificacao, item_add.operador, item_add.codigo, item_add.nome, item_add.qtd, item_add.unidade]);
-  }
-
-  planilha_aba_entrada(DadosEntrada item_add) async{
-    final gsheets = GSheets(planilha.credentials);
-    final ss = await gsheets.spreadsheet(planilha.spreadsheetId);
-    var sheet = ss.worksheetByTitle('Entradas');
-    var ultima_linha = await sheet!.values.lastRow();
-    var indice = await sheet!.values.rowIndexOf(ultima_linha![1], inColumn: 2);
+    final ss = await gsheets.spreadsheet(planilha_salvar);
+    var sheet_itens = ss.worksheetByTitle('Itens Entradas');
+    var sheet_entradas = ss.worksheetByTitle('Entradas');
+    await sheet_itens!.values.appendRows(linhas_itens_baixa);
+    var ultima_linha = await sheet_entradas!.values.lastRow();
+    var indice = await sheet_entradas!.values.rowIndexOf(ultima_linha![1], inColumn: 2);
     String chave = indice.toString().padLeft(6, '0');
-    await sheet!.values.appendRow([chave, item_add.identificacao, item_add.data, item_add.operador, item_add.link]);
+    await sheet_entradas!.values.appendRow([chave, item_add.identificacao, item_add.data, item_add.operador, item_add.link]);
   }
 
   planilha_estoque_entrada(String codigo, int nova_qtd) async{
     final gsheets = GSheets(planilha.credentials);
-    final ss = await gsheets.spreadsheet(planilha.spreadsheetId);
+    final ss = await gsheets.spreadsheet(planilha_salvar);
     var sheet = ss.worksheetByTitle('Estoque Atual');
     var indice = await sheet!.values.rowIndexOf(codigo, inColumn: 1);
     await sheet.values.insertValue(nova_qtd, column: 3, row: indice);
@@ -628,18 +612,25 @@ class _DialogoFinalizarEntradaState extends State<DialogoFinalizarEntrada> {
 
   mostrar_progress(){
     showDialog(
+        barrierDismissible: false,
         barrierColor: Color(0x00ffffff),
         context: context,
-        builder: (_) => new Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0.0,
-          child: new Container(
+        builder: (_){
+          return WillPopScope(
+          child: Dialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0.0,
+              child: new Container(
               alignment: FractionalOffset.center,
               height: 80.0,
               padding: const EdgeInsets.all(20.0),
               child:  Center(child: WidgetProgress(),)
-          ),
-        ));
+              ),
+            ),
+          onWillPop: () async => false
+      );
+    }
+    );
   }
 
   mostrar_sem_conexao(){
